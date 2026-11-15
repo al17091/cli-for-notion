@@ -1,179 +1,226 @@
-# Notion CLI (`notion` / `notion-cli`)
+# notion-cli
 
-高速・軽量かつ依存関係ゼロ（Python 標準ライブラリのみで動作）の Notion 操作用 CLI ツールです。  
-Notion MCP Server の代わりに CLI 経由で Markdown の読み書き、ページの作成・更新、データベースクエリ、検索を快適に行えます。
+A blazing-fast, lightweight, zero-dependency command-line interface (CLI) for Notion, built exclusively with the Python standard library.
 
----
-
-## 🌟 特徴
-
-- **高速 & ゼロ依存**: Python 3.9+ の標準ライブラリ (`urllib.request`) のみで実装。外部ライブラリのインストール不要で起動が極めて高速。
-- **ネイティブ Markdown サポート**: Notion API 2026-03-11 の Markdown エンドポイントに対応。ページ全体の一括取得 (`get`) や置換 (`update`)、末尾追記 (`append`)、部分置換 (`replace`) が可能。
-- **パイプ & 標準入力対応**: `cat document.md | notion page update <PAGE_ID>` のようにパイプライン処理が可能。
-- **URL / UUID 自動正規化**: Notion の Web URL（`https://notion.so/...` や `https://app.notion.com/p/...`）、ハイフンなし 32 桁 16 進数、ハイフン付き UUID のいずれを渡しても自動解決。
-- **データベース & データソース自動解決**: 2026-03-11 仕様の Data Source と Database の関係を自動判定し、テーブル検索やプロパティの自動型変換（`select`, `rich_text`, `status`, `multi_select` 等）を実行。
-- **レートリミット (429) 自動リトライ**: Notion API のレート制限を検知し、指数バックオフで自動再試行。
+Designed for developers, system administrators, and AI coding agents who need a streamlined, scriptable way to read, create, update, and search Notion pages and databases without the heavyweight overhead of Model Context Protocol (MCP) servers or bulky client libraries.
 
 ---
 
-## 🚀 インストール & セットアップ
+## Key Features
 
-### 1. 認証トークンの設定
-Notion インテグレーションの内部トークン（`ntn_...` または `secret_...`）を設定します。
+- **Zero External Dependencies**: Built entirely on Python 3.9+ standard library (`urllib.request`). No `pip install` dependency conflicts, virtualenv requirements, or runtime bloat.
+- **Native Markdown Support**: Direct support for the Notion API (2026-03-11) markdown endpoints (`/v1/pages/{id}/markdown`). Retrieve, overwrite, append, or perform targeted find-and-replace on page markdown without dealing with nested Notion block objects.
+- **Unix Pipeline & Stdin Friendly**: Seamlessly pipe markdown content into Notion commands (`cat doc.md | notion page update <PAGE_ID>`).
+- **Smart URL & UUID Normalization**: Accepts Notion browser URLs (`https://app.notion.com/p/...`), 32-character hex strings, or standard dashed UUIDs interchangeably.
+- **Database & Data Source Auto-Resolution**: Transparently bridges Notion 2026 Database and Data Source structures, automatically formatting common property types (`select`, `rich_text`, `status`, `multi_select`).
+- **Resilient**: Automatic rate limit detection (HTTP 429) with exponential backoff and `Retry-After` header adherence.
+
+---
+
+## Installation
+
+### Option 1: Editable Pip Installation (Recommended)
 
 ```bash
-# 方法 1: CLI から設定（~/.config/notion/config.json に 0600 で保存）
-notion auth set-token "ntn_xxxxxxxxxxxxxxxxxxxx"
-
-# 方法 2: 環境変数
-export NOTION_API_KEY="ntn_xxxxxxxxxxxxxxxxxxxx"
-# または
-export NOTION_TOKEN="ntn_xxxxxxxxxxxxxxxxxxxx"
+git clone git@github.com:al17091/notion-cli.git
+cd notion-cli
+pip install -e .
 ```
 
-### 2. 接続確認
+### Option 2: Standalone Symlink
+
+Because `notion-cli` requires no third-party libraries, you can simply symlink the executable to your `~/.local/bin`:
+
+```bash
+git clone git@github.com:al17091/notion-cli.git
+ln -s "$(pwd)/notion-cli/bin/notion" ~/.local/bin/notion
+ln -s "$(pwd)/notion-cli/bin/notion" ~/.local/bin/notion-cli
+```
+
+---
+
+## Authentication
+
+Obtain an internal integration token (`ntn_...` or `secret_...`) from [Notion Developers - My Integrations](https://www.notion.so/profile/integrations).
+
+### 1. Configure Token via CLI
+Save the token securely to `~/.config/notion/config.json` with strict `0600` file permissions:
+
+```bash
+notion auth set-token "ntn_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+### 2. Configure via Environment Variable (Alternative)
+Alternatively, export the token in your shell environment:
+
+```bash
+export NOTION_API_KEY="ntn_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# or
+export NOTION_TOKEN="ntn_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+```
+
+### 3. Verify Connection
 ```bash
 notion whoami
-# または
-notion auth status
 ```
 
-出力例:
+Output:
 ```text
 Authenticated as: lab_enhance (ce00ee66-8ac5-460c-b5b4-4c7277f4d592)
-Workspace:        Private Workspace
+Workspace:        Engineering Hub
 Status:           Active (Valid token)
 ```
 
 ---
 
-## 📖 コマンドリファレンス
+## Usage Guide
 
-### 1. ページ操作 (`notion page`)
+### 1. Page Operations (`notion page`)
 
-#### ページの Markdown 取得 (`get`)
+#### Retrieve Page Markdown (`get`)
 ```bash
-# 標準出力へ表示
+# Print markdown directly to stdout
 notion page get <PAGE_ID_OR_URL>
 
-# ファイルへ保存
-notion page get <PAGE_ID_OR_URL> -o page_backup.md
+# Save markdown output directly to a file
+notion page get <PAGE_ID_OR_URL> -o document.md
 
-# ページメタデータ JSON を取得
+# Retrieve page metadata JSON instead of markdown
 notion page get <PAGE_ID_OR_URL> --json
 ```
 
-#### 新規ページの作成 (`create`)
+#### Create a Page (`create`)
 ```bash
-# 空ページ作成
-notion page create --parent <PARENT_PAGE_OR_DB_ID> --title "新しいページ名"
+# Create an empty page under a parent page or database
+notion page create --parent <PARENT_ID> --title "Incident Postmortem"
 
-# Markdown ファイルから一括初期化
-notion page create --parent <PARENT_PAGE_OR_DB_ID> --title "議事録" -f notes.md
+# Create and populate immediately from a markdown file
+notion page create --parent <PARENT_ID> --title "Weekly Report" -f report.md
 
-# インライン Markdown 文字列から作成
-notion page create --parent <PARENT_PAGE_OR_DB_ID> --title "タスク一覧" -c "## 今日のタスク\n- [ ] タスク1\n- [ ] タスク2"
+# Create using inline markdown content
+notion page create --parent <PARENT_ID> --title "Tasks" -c "## Action Items\n- [ ] Deploy v2.0\n- [ ] Update DNS"
 
-# 標準入力からパイプして作成
-cat draft.md | notion page create --parent <PARENT_PAGE_OR_DB_ID> --title "ドラフト" -f -
+# Pipe markdown from stdin
+cat notes.md | notion page create --parent <PARENT_ID> --title "Notes" -f -
 ```
 
-#### ページ Markdown の全体置換 (`update`)
+#### Update Page Markdown Content (`update`)
+Replaces the entire content body of the target page:
+
 ```bash
-# ファイルでページ本文を上書き
+# Overwrite page body from a local markdown file
 notion page update <PAGE_ID_OR_URL> -f updated.md
 
-# パイプから上書き
-echo "# タイトル\n本文内容" | notion page update <PAGE_ID_OR_URL>
+# Overwrite page body via piped input
+echo -e "## Updated Section\nNew verified metrics." | notion page update <PAGE_ID_OR_URL>
 
-# 子要素削除を許可して完全上書き
+# Allow deletion of nested child pages/databases if not present in the new content
 notion page update <PAGE_ID_OR_URL> -f clean.md --allow-delete
 ```
 
-#### ページ末尾への Markdown 追記 (`append`)
-```bash
-# 末尾に追記
-notion page append <PAGE_ID_OR_URL> -c "\n### 追記事項\n- 新しい知見を追加しました。"
+#### Append Markdown to Page (`append`)
+Appends content at the end of the page without modifying existing content:
 
-# ファイルの内容を追記
-notion page append <PAGE_ID_OR_URL> -f additional_notes.md
+```bash
+# Append an inline string
+notion page append <PAGE_ID_OR_URL> -c "\n### Appendices\n- Verified on node-01."
+
+# Append content from a file
+notion page append <PAGE_ID_OR_URL> -f additions.md
 ```
 
-#### ページ内の文字列置換 (`replace`)
-```bash
-# 特定の文字列を安全に置換（既存ブロック構造を壊さない）
-notion page replace <PAGE_ID_OR_URL> --old "旧バージョン 1.0" --new "新バージョン 2.0"
+#### Targeted Find-and-Replace (`replace`)
+Perform precise text replacements in page markdown (safely preserves parent page layouts, inline databases, and child links):
 
-# 全一致箇所を置換
+```bash
+# Replace first match
+notion page replace <PAGE_ID_OR_URL> --old "Status: Draft" --new "Status: Approved"
+
+# Replace all occurrences
 notion page replace <PAGE_ID_OR_URL> --old "TODO" --new "DONE" --all
 ```
 
-#### ページタイトルの変更 (`set-title`)
+#### Change Page Title (`set-title`)
 ```bash
-notion page set-title <PAGE_ID_OR_URL> "新しいタイトル"
+notion page set-title <PAGE_ID_OR_URL> "New Architecture Design (Final)"
 ```
 
-#### ページの削除・ゴミ箱移動 (`delete`)
+#### Delete / Trash Page (`delete`)
 ```bash
 notion page delete <PAGE_ID_OR_URL> --force
 ```
 
 ---
 
-### 2. データベース操作 (`notion db`)
+### 2. Database Operations (`notion db`)
 
-#### データベース情報 & カラム構造取得 (`get`)
+#### Inspect Database Schema (`get`)
 ```bash
-notion db get <DB_ID_OR_URL>
+notion db get <DATABASE_ID_OR_URL>
 ```
 
-#### データベースのアイテム一覧取得 (`query`)
+#### Query Database Items (`query`)
 ```bash
-# 最新 50 件を表示
-notion db query <DB_ID_OR_URL>
+# List recent items
+notion db query <DATABASE_ID_OR_URL> --limit 20
 
-# フィルター指定（JSON）
-notion db query <DB_ID_OR_URL> --filter '{"property": "Severity", "select": {"equals": "Critical"}}'
+# Query with JSON filter
+notion db query <DATABASE_ID_OR_URL> \
+  --filter '{"property": "Severity", "select": {"equals": "Critical"}}'
 
-# 件数制限と JSON 出力
-notion db query <DB_ID_OR_URL> --limit 10 --json
+# Output full JSON results
+notion db query <DATABASE_ID_OR_URL> --json
 ```
 
-#### データベースへの新規アイテム起票 (`add-item`)
-```bash
-# タイトルのみ
-notion db add-item <DB_ID_OR_URL> --title "[Alert] CPU 高負荷検知"
+#### Add Item to Database (`add-item`)
+Properties are automatically mapped and typed (`select`, `rich_text`, `status`, etc.):
 
-# プロパティ付き（select や rich_text などを自動変換）
-notion db add-item <DB_ID_OR_URL> \
-  --title "[Alert] Keycloak 503 エラー" \
-  --props '{"Severity": "Critical", "Service": "keycloak", "Status": "Open"}'
+```bash
+# Add basic entry
+notion db add-item <DATABASE_ID_OR_URL> --title "[Alert] API Latency Spike"
+
+# Add entry with custom properties
+notion db add-item <DATABASE_ID_OR_URL> \
+  --title "[Alert] Keycloak Service Degraded" \
+  --props '{"Severity": "Critical", "Service": "auth-gateway", "Status": "Open"}'
 ```
 
 ---
 
-### 3. 全体検索 (`notion search`)
+### 3. Workspace Search (`notion search`)
 
 ```bash
-# キーワード検索
-notion search "自宅ラボ"
+# Search everything by keyword
+notion search "Infrastructure"
 
-# ページのみに絞り込み
+# Restrict search to pages only
 notion search "Kubernetes" --type page
 
-# データベースのみに絞り込み
-notion search "Incident" --type database
+# Restrict search to databases only
+notion search "Alerts" --type database
 ```
 
 ---
 
-## 🛠️ トラブルシューティング & Tips
+## Token Precedence
 
-- **デバッグログの出力**: `--debug` オプションを付与すると、HTTP リクエスト URL や送受信ボディが stderr に出力されます。
-  ```bash
-  notion --debug page get <PAGE_ID>
-  ```
-- **トークンの優先順位**:
-  1. コマンドライン引数 `--token`
-  2. 環境変数 `NOTION_API_KEY` または `NOTION_TOKEN`
-  3. 設定ファイル `~/.config/notion/config.json`
+The integration token is resolved in the following priority:
+1. Explicit CLI argument: `--token <TOKEN>`
+2. Environment variables: `NOTION_API_KEY` or `NOTION_TOKEN`
+3. Configuration file: `~/.config/notion/config.json`
+
+---
+
+## Development & Testing
+
+Run the built-in unit tests with Python's standard `unittest` test runner:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
