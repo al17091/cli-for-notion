@@ -19,22 +19,33 @@ Designed for developers, system administrators, and AI coding agents who need a 
 
 ## Installation
 
-### Option 1: Editable Pip Installation (Recommended)
+### Standard Installation (via Git)
+
+You can install `notion-cli` directly from GitHub using `pip`, `pipx`, or `uv` without cloning the repository:
+
+```bash
+# Using pip
+pip install git+https://github.com/al17091/notion-cli.git
+
+# Or isolated via pipx (recommended for global CLI tools)
+pipx install git+https://github.com/al17091/notion-cli.git
+
+# Or using uv
+uv tool install git+https://github.com/al17091/notion-cli.git
+```
+
+This installs both `notion` and `notion-cli` commands directly into your PATH.
+
+---
+
+### Local Development / Hacking
+
+If you are developing or customizing `notion-cli` locally:
 
 ```bash
 git clone git@github.com:al17091/notion-cli.git
 cd notion-cli
 pip install -e .
-```
-
-### Option 2: Standalone Symlink
-
-Because `notion-cli` requires no third-party libraries, you can simply symlink the executable to your `~/.local/bin`:
-
-```bash
-git clone git@github.com:al17091/notion-cli.git
-ln -s "$(pwd)/notion-cli/bin/notion" ~/.local/bin/notion
-ln -s "$(pwd)/notion-cli/bin/notion" ~/.local/bin/notion-cli
 ```
 
 ---
