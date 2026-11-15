@@ -5,7 +5,7 @@ import os
 import sys
 from typing import Optional
 
-from notion_cli.client import NotionClient, normalize_id
+from cli_for_notion.client import NotionClient, normalize_id
 
 
 def _read_content_input(file_path: Optional[str], content_str: Optional[str]) -> Optional[str]:

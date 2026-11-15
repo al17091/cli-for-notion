@@ -3,16 +3,21 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "notion-cli"
+name = "cli-for-notion"
 version = "1.0.0"
-description = "Fast, reliable Notion CLI for inspecting, reading, and updating Notion pages and databases."
+description = "A fast, lightweight, zero-dependency CLI for Notion."
 readme = "README.md"
 requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Koki Higashi" }
+]
 dependencies = []
 
 [project.scripts]
-notion = "notion_cli.cli:main"
-notion-cli = "notion_cli.cli:main"
+notion = "cli_for_notion.cli:main"
+ntn = "cli_for_notion.cli:main"
+cli-for-notion = "cli_for_notion.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["notion_cli*"]
+include = ["cli_for_notion*"]

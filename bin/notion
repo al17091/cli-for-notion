@@ -8,7 +8,7 @@ package_root = os.path.dirname(os.path.dirname(real_script_path))
 if package_root not in sys.path:
     sys.path.insert(0, package_root)
 
-from notion_cli.cli import main
+from cli_for_notion.cli import main
 
 if __name__ == "__main__":
     sys.exit(main())

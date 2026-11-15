@@ -4,7 +4,7 @@ import json
 import sys
 from typing import Any, Dict
 
-from notion_cli.client import NotionClient, save_token
+from cli_for_notion.client import NotionClient, save_token
 
 
 def cmd_auth_status(client: NotionClient, as_json: bool = False) -> int:

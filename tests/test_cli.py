@@ -1,9 +1,9 @@
 """Unit tests for notion-cli."""
 
 import unittest
-from notion_cli.client import normalize_id
-from notion_cli.commands.db import _format_db_properties
-from notion_cli.commands.page import _read_content_input
+from cli_for_notion.client import normalize_id
+from cli_for_notion.commands.db import _format_db_properties
+from cli_for_notion.commands.page import _read_content_input
 
 
 class TestNotionCLI(unittest.TestCase):

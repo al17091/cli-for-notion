@@ -1,8 +1,11 @@
-# notion-cli
+# cli-for-notion
 
 A blazing-fast, lightweight, zero-dependency command-line interface (CLI) for Notion, built exclusively with the Python standard library.
 
 Designed for developers, system administrators, and AI coding agents who need a streamlined, scriptable way to read, create, update, and search Notion pages and databases without the heavyweight overhead of Model Context Protocol (MCP) servers or bulky client libraries.
+
+> [!IMPORTANT]
+> **Disclaimer**: `cli-for-notion` is an independent, unofficial open-source project and is not affiliated with, endorsed by, or sponsored by Notion Labs, Inc. "Notion" is a registered trademark of Notion Labs, Inc.
 
 ---
 
@@ -10,7 +13,7 @@ Designed for developers, system administrators, and AI coding agents who need a 
 
 - **Zero External Dependencies**: Built entirely on Python 3.9+ standard library (`urllib.request`). No `pip install` dependency conflicts, virtualenv requirements, or runtime bloat.
 - **Native Markdown Support**: Direct support for the Notion API (2026-03-11) markdown endpoints (`/v1/pages/{id}/markdown`). Retrieve, overwrite, append, or perform targeted find-and-replace on page markdown without dealing with nested Notion block objects.
-- **Unix Pipeline & Stdin Friendly**: Seamlessly pipe markdown content into Notion commands (`cat doc.md | notion page update <PAGE_ID>`).
+- **Unix Pipeline & Stdin Friendly**: Seamlessly pipe markdown content into commands (`cat doc.md | notion page update <PAGE_ID>`).
 - **Smart URL & UUID Normalization**: Accepts Notion browser URLs (`https://app.notion.com/p/...`), 32-character hex strings, or standard dashed UUIDs interchangeably.
 - **Database & Data Source Auto-Resolution**: Transparently bridges Notion 2026 Database and Data Source structures, automatically formatting common property types (`select`, `rich_text`, `status`, `multi_select`).
 - **Resilient**: Automatic rate limit detection (HTTP 429) with exponential backoff and `Retry-After` header adherence.
@@ -21,30 +24,30 @@ Designed for developers, system administrators, and AI coding agents who need a 
 
 ### Standard Installation (via Git)
 
-You can install `notion-cli` directly from GitHub using `pip`, `pipx`, or `uv` without cloning the repository:
+You can install `cli-for-notion` directly from GitHub using `pip`, `pipx`, or `uv` without manually cloning the repository:
 
 ```bash
 # Using pip
-pip install git+https://github.com/al17091/notion-cli.git
+pip install git+https://github.com/al17091/cli-for-notion.git
 
 # Or isolated via pipx (recommended for global CLI tools)
-pipx install git+https://github.com/al17091/notion-cli.git
+pipx install git+https://github.com/al17091/cli-for-notion.git
 
 # Or using uv
-uv tool install git+https://github.com/al17091/notion-cli.git
+uv tool install git+https://github.com/al17091/cli-for-notion.git
 ```
 
-This installs both `notion` and `notion-cli` commands directly into your PATH.
+This installs `notion`, `ntn`, and `cli-for-notion` commands directly into your PATH.
 
 ---
 
 ### Local Development / Hacking
 
-If you are developing or customizing `notion-cli` locally:
+If you are developing or customizing `cli-for-notion` locally:
 
 ```bash
-git clone git@github.com:al17091/notion-cli.git
-cd notion-cli
+git clone git@github.com:al17091/cli-for-notion.git
+cd cli-for-notion
 pip install -e .
 ```
 
@@ -73,6 +76,8 @@ export NOTION_TOKEN="ntn_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ### 3. Verify Connection
 ```bash
 notion whoami
+# or
+ntn whoami
 ```
 
 Output:
@@ -85,6 +90,8 @@ Status:           Active (Valid token)
 ---
 
 ## Usage Guide
+
+You can use either `notion` or `ntn` interchangeably.
 
 ### 1. Page Operations (`notion page`)
 

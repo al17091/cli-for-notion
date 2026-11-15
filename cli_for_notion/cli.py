@@ -3,11 +3,11 @@
 import argparse
 import sys
 
-from notion_cli import __version__
-from notion_cli.client import NotionClient
-from notion_cli.commands.auth import cmd_auth_set_token, cmd_auth_status
-from notion_cli.commands.db import cmd_db_add_item, cmd_db_get, cmd_db_query
-from notion_cli.commands.page import (
+from cli_for_notion import __version__
+from cli_for_notion.client import NotionClient
+from cli_for_notion.commands.auth import cmd_auth_set_token, cmd_auth_status
+from cli_for_notion.commands.db import cmd_db_add_item, cmd_db_get, cmd_db_query
+from cli_for_notion.commands.page import (
     cmd_page_append,
     cmd_page_create,
     cmd_page_delete,
@@ -16,13 +16,13 @@ from notion_cli.commands.page import (
     cmd_page_set_title,
     cmd_page_update,
 )
-from notion_cli.commands.search import cmd_search
+from cli_for_notion.commands.search import cmd_search
 
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="notion",
-        description="Fast, reliable Notion CLI for inspecting, reading, and updating Notion pages and databases.",
+        description="cli-for-notion: Fast, reliable, zero-dependency CLI for inspecting, reading, and updating Notion pages and databases.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     parser.add_argument("--token", help="Notion API integration token (overrides env and config file)")

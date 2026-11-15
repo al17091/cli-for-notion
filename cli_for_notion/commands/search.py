@@ -4,7 +4,7 @@ import json
 import sys
 from typing import Optional
 
-from notion_cli.client import NotionClient
+from cli_for_notion.client import NotionClient
 
 
 def _get_title(item: dict) -> str:

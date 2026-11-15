@@ -4,7 +4,7 @@ import json
 import sys
 from typing import Any, Dict, List, Optional
 
-from notion_cli.client import NotionClient, normalize_id
+from cli_for_notion.client import NotionClient, normalize_id
 
 
 def _extract_title(props: Dict[str, Any]) -> str:

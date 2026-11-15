@@ -1,3 +1,0 @@
-[console_scripts]
-notion = notion_cli.cli:main
-notion-cli = notion_cli.cli:main
