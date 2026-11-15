@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "notion-cli"
+version = "1.0.0"
+description = "Fast, reliable Notion CLI for inspecting, reading, and updating Notion pages and databases."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+notion = "notion_cli.cli:main"
+notion-cli = "notion_cli.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["notion_cli*"]

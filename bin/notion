@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+import sys
+import os
+
+# Resolve symlinks to find the real package root
+real_script_path = os.path.realpath(__file__)
+package_root = os.path.dirname(os.path.dirname(real_script_path))
+if package_root not in sys.path:
+    sys.path.insert(0, package_root)
+
+from notion_cli.cli import main
+
+if __name__ == "__main__":
+    sys.exit(main())
